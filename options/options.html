@@ -1,0 +1,263 @@
+<!--
+  IncoBills — AI-Powered Invoice Detection for Thunderbird
+  https://github.com/serverspan/incobills
+
+  Options — Full settings page
+
+  Author:      ServerSpan (https://www.serverspan.com)
+  Copyright:   2026 ServerSpan
+  License:     MIT
+  Version:     1.0.0
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IncoBills Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="page-header">
+      <img src="../icons/icon-48.svg" alt="" class="page-logo">
+      <div>
+        <h1>IncoBills</h1>
+        <p class="subtitle">AI-powered invoice detection for Thunderbird</p>
+      </div>
+    </header>
+
+    <!-- ========== AI Backend ========== -->
+    <section class="card">
+      <h2>AI Backend</h2>
+      <p class="card-desc">Choose how emails are classified. AI backends are more accurate; keywords work offline with zero setup.</p>
+
+      <div class="backend-options">
+        <!-- Claude -->
+        <div class="radio-card" data-radio="claude">
+          <input type="radio" name="aiBackend" value="claude" id="radioClaude">
+          <label for="radioClaude" class="radio-card-body">
+            <div class="radio-card-title">Claude API <span class="badge badge-rec">Recommended</span></div>
+            <p>Anthropic Claude Haiku &mdash; fast, accurate, ~$1/month at typical volume.</p>
+          </label>
+          <div class="field-group backend-field" data-backend="claude">
+            <label>API URL</label>
+            <input type="text" id="claudeApiUrl" placeholder="https://api.anthropic.com">
+            <label>API Key</label>
+            <div class="input-row">
+              <input type="password" id="claudeApiKey" placeholder="sk-ant-...">
+              <button class="btn btn-sm" id="testClaude">Test</button>
+            </div>
+            <label>Model</label>
+            <input type="text" id="claudeModel" placeholder="claude-haiku-4-5-20251001">
+          </div>
+        </div>
+
+        <!-- OpenAI -->
+        <div class="radio-card" data-radio="openai">
+          <input type="radio" name="aiBackend" value="openai" id="radioOpenai">
+          <label for="radioOpenai" class="radio-card-body">
+            <div class="radio-card-title">OpenAI API</div>
+            <p>GPT-4o-mini &mdash; similar accuracy, comparable cost.</p>
+          </label>
+          <div class="field-group backend-field" data-backend="openai">
+            <label>API URL</label>
+            <input type="text" id="openaiApiUrl" placeholder="https://api.openai.com">
+            <label>API Key</label>
+            <div class="input-row">
+              <input type="password" id="openaiApiKey" placeholder="sk-...">
+              <button class="btn btn-sm" id="testOpenai">Test</button>
+            </div>
+            <label>Model</label>
+            <input type="text" id="openaiModel" placeholder="gpt-4o-mini">
+          </div>
+        </div>
+
+        <!-- Ollama -->
+        <div class="radio-card" data-radio="ollama">
+          <input type="radio" name="aiBackend" value="ollama" id="radioOllama">
+          <label for="radioOllama" class="radio-card-body">
+            <div class="radio-card-title">Local Ollama <span class="badge badge-priv">Private</span></div>
+            <p>Fully local &mdash; no data leaves your machine. Requires Ollama installed.</p>
+          </label>
+          <div class="field-group backend-field" data-backend="ollama">
+            <label>Ollama URL</label>
+            <div class="input-row">
+              <input type="text" id="ollamaUrl" placeholder="http://127.0.0.1:11434">
+              <button class="btn btn-sm" id="testOllama">Test</button>
+            </div>
+            <label>Model</label>
+            <input type="text" id="ollamaModel" placeholder="llama3.2:3b">
+          </div>
+        </div>
+
+        <!-- Keywords -->
+        <div class="radio-card" data-radio="keywords">
+          <input type="radio" name="aiBackend" value="keywords" id="radioKeywords">
+          <label for="radioKeywords" class="radio-card-body">
+            <div class="radio-card-title">Keywords Only <span class="badge badge-free">Free</span></div>
+            <p>Pattern matching with no AI &mdash; catches obvious invoices. Zero setup, zero cost.</p>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== Detection Settings ========== -->
+    <section class="card">
+      <h2>Detection</h2>
+
+      <div class="field-group">
+        <label>Confidence threshold</label>
+        <div class="slider-row">
+          <input type="range" id="confidenceThreshold" min="0.1" max="1.0" step="0.05" value="0.70">
+          <span id="thresholdValue" class="slider-value">0.70</span>
+        </div>
+        <p class="hint">Lower = more aggressive (may catch non-invoices). Higher = more conservative (may miss some).</p>
+      </div>
+    </section>
+
+    <!-- ========== Folder Settings ========== -->
+    <section class="card">
+      <h2>Invoice Folder</h2>
+
+      <div class="field-group">
+        <label>Folder name</label>
+        <input type="text" id="folderName" placeholder="Invoices">
+        <p class="hint">A subfolder for each month (e.g. 2026-04) is created automatically inside this folder.</p>
+      </div>
+
+      <div class="field-group">
+        <label>Folder mode</label>
+        <div class="radio-group">
+          <label class="radio-inline">
+            <input type="radio" name="folderMode" value="perAccount" checked>
+            <span>Per account</span>
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="folderMode" value="unified">
+            <span>Unified (one mailbox)</span>
+          </label>
+        </div>
+        <p class="hint">Per account: each mailbox gets its own Invoices tree. Unified: all invoices go to one mailbox.</p>
+      </div>
+
+      <div class="field-group" id="unifiedAccountGroup" hidden>
+        <label>Target account for unified folder</label>
+        <select id="unifiedAccount">
+          <option value="">(auto-select first account)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- ========== Behavior ========== -->
+    <section class="card">
+      <h2>Behavior</h2>
+
+      <div class="field-group">
+        <label>Action for detected emails</label>
+        <div class="radio-group">
+          <label class="radio-inline">
+            <input type="radio" name="mailAction" value="move" checked>
+            <span>Move</span>
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="mailAction" value="copy">
+            <span>Copy</span>
+          </label>
+        </div>
+        <p class="hint">Move: remove from original folder. Copy: keep in original folder, duplicate to Invoices.</p>
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="autoMove" checked>
+        <span>Automatically apply action to detected invoices</span>
+      </label>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="showNotification" checked>
+        <span>Show desktop notification when an invoice is detected</span>
+      </label>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="notifyOnly">
+        <span>Notify only &mdash; do not move or copy emails (overrides above)</span>
+      </label>
+    </section>
+
+    <!-- ========== Accounts ========== -->
+    <section class="card">
+      <h2>Accounts to Monitor</h2>
+      <p class="card-desc">Select which accounts to scan. If none are selected, all accounts are monitored.</p>
+      <div id="accountsList" class="accounts-list">
+        <div class="loading">Loading accounts...</div>
+      </div>
+    </section>
+
+    <!-- ========== Scan Existing ========== -->
+    <section class="card">
+      <h2>Scan Existing Emails</h2>
+      <p class="card-desc">Scan your inbox for invoices you may have missed before installing IncoBills.</p>
+
+      <div class="field-group">
+        <div class="input-row">
+          <div>
+            <label>From</label>
+            <input type="date" id="scanFrom">
+          </div>
+          <div>
+            <label>To</label>
+            <input type="date" id="scanTo">
+          </div>
+          <div>
+            <label>Account</label>
+            <select id="scanAccount">
+              <option value="">All accounts</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnScan">Scan Now</button>
+        <div id="scanProgress" class="scan-progress" hidden>
+          <div class="progress-bar"><div class="progress-fill" id="scanFill"></div></div>
+          <span id="scanStatus">Scanning...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== History ========== -->
+    <section class="card">
+      <h2>Classification History</h2>
+      <div class="history-toolbar">
+        <button class="btn btn-sm" id="btnExportCSV">Export CSV</button>
+        <button class="btn btn-sm btn-danger" id="btnClearHistory">Clear History</button>
+      </div>
+      <div class="table-wrap">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th class="sortable" id="sortDate">Date &#9660;</th>
+              <th>From</th>
+              <th>Subject</th>
+              <th>Conf.</th>
+              <th>Backend</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="6" class="empty-cell">No history yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="history-footer">
+        <button class="btn btn-sm" id="btnLoadMore" hidden>Load more</button>
+      </div>
+    </section>
+
+    <!-- ========== Save ========== -->
+    <div class="save-bar">
+      <span id="saveStatus" class="save-status"></span>
+      <button class="btn btn-primary btn-lg" id="btnSave">Save Settings</button>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
