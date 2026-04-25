@@ -23,7 +23,11 @@ Built by [ServerSpan](https://www.serverspan.com/en/) — the hosting company wh
 
 ## Screenshots
 
-*Coming soon.*
+| Toolbar Button | Popup | Settings |
+|:---:|:---:|:---:|
+| ![Toolbar Button](screenshots/toolbar-button.png) | ![Popup](screenshots/popup.png) | ![Settings](screenshots/options-page.png) |
+
+*Click the IncoBills icon in Thunderbird's toolbar to open the popup, then click **Settings** to configure your AI backend and detection preferences.*
 
 ## Installation
 
