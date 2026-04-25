@@ -29,29 +29,59 @@
       </label>
     </div>
 
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat">
-        <span class="stat-value" id="todayCount">0</span>
-        <span class="stat-label">Today</span>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="main">IncoBills</button>
+      <button class="tab-btn" data-tab="saga">SAGA <span id="sagaBadge" class="tab-badge"></span></button>
+    </div>
+
+    <!-- Main Tab -->
+    <div id="tab-main" class="tab-panel active">
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-value" id="todayCount">0</span>
+          <span class="stat-label">Today</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="monthCount">0</span>
+          <span class="stat-label">This month</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="totalCount">0</span>
+          <span class="stat-label">Total</span>
+        </div>
       </div>
-      <div class="stat-divider"></div>
-      <div class="stat">
-        <span class="stat-value" id="monthCount">0</span>
-        <span class="stat-label">This month</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat">
-        <span class="stat-value" id="totalCount">0</span>
-        <span class="stat-label">Total</span>
+
+      <!-- Recent detections -->
+      <div class="section">
+        <div class="section-title">Recent invoices</div>
+        <div id="recentList" class="recent-list">
+          <div class="empty-state">No invoices detected yet.</div>
+        </div>
       </div>
     </div>
 
-    <!-- Recent detections -->
-    <div class="section">
-      <div class="section-title">Recent invoices</div>
-      <div id="recentList" class="recent-list">
-        <div class="empty-state">No invoices detected yet.</div>
+    <!-- SAGA Tab -->
+    <div id="tab-saga" class="tab-panel">
+      <div class="saga-popup-header">
+        <div class="saga-popup-stat">
+          <span class="stat-value" id="sagaQueueCount">0</span>
+          <span class="stat-label">În coadă</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Facturi recente</div>
+        <div id="sagaRecentList" class="recent-list">
+          <div class="empty-state">Nicio factură în coadă.</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button id="btnSagaExport" class="btn btn-primary">Exportă Tot</button>
       </div>
     </div>
 

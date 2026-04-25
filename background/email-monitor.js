@@ -55,6 +55,17 @@ const EmailMonitor = {
           } else {
             action = "flagged";
           }
+
+          // Trigger SAGA PDF extraction (async, non-blocking)
+          try {
+            if (typeof SAGAExport !== "undefined") {
+              SAGAExport.processEmail(message, classification).catch((err) =>
+                console.error("[SAGA] Processing failed:", err)
+              );
+            }
+          } catch (sagaErr) {
+            console.error("[SAGA] Error triggering export:", sagaErr);
+          }
         }
 
         // Log to history
@@ -229,6 +240,17 @@ const EmailMonitor = {
             action = "flagged";
           }
           found++;
+
+          // Trigger SAGA PDF extraction for retroactive scans (async, non-blocking)
+          try {
+            if (typeof SAGAExport !== "undefined") {
+              SAGAExport.processEmail(message, classification).catch((err) =>
+                console.error("[SAGA] Retroactive processing failed:", err)
+              );
+            }
+          } catch (sagaErr) {
+            console.error("[SAGA] Error triggering retroactive export:", sagaErr);
+          }
         }
 
         await History.log({

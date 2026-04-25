@@ -243,3 +243,83 @@ body {
 .btn-secondary:hover {
   background: #cbd5e1;
 }
+
+/* ============================================================
+   Tab Navigation
+   ============================================================ */
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 3px;
+  margin: 12px 0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: #1e40af;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tab-badge {
+  display: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* ============================================================
+   SAGA Popup Styles
+   ============================================================ */
+
+.saga-popup-header {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+
+.saga-popup-stat {
+  text-align: center;
+}
+
+.saga-popup-stat .stat-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.saga-popup-stat .stat-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}

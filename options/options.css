@@ -496,3 +496,156 @@ td {
   color: #22c55e;
   font-weight: 500;
 }
+
+/* ============================================================
+   SAGA Export Styles
+   ============================================================ */
+
+.saga-subsection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.saga-subsection h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saga-companies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.saga-company-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.saga-company-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.saga-company-cif {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.saga-company-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.saga-form {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.saga-form h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+
+.saga-form .input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.saga-form label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.saga-form input,
+.saga-form select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.saga-form .form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.saga-queue-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.saga-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.saga-queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.saga-queue-item.saga-status-extrageereEsuata {
+  border-left: 3px solid #ef4444;
+}
+
+.saga-queue-item.saga-status-extracted {
+  border-left: 3px solid #3b82f6;
+}
+
+.saga-queue-item.saga-status-reviewed {
+  border-left: 3px solid #22c55e;
+}
+
+.saga-queue-item.saga-status-exported {
+  border-left: 3px solid #94a3b8;
+  opacity: 0.7;
+}
+
+.saga-queue-numar {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.saga-queue-meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.saga-queue-actions {
+  display: flex;
+  gap: 8px;
+}

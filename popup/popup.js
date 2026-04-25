@@ -41,6 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // --- Load SAGA data ---
+  await loadSagaPopupData();
+
   // --- Toggle handler ---
   enableToggle.addEventListener("change", () => {
     browser.runtime.sendMessage({
@@ -49,12 +52,105 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // --- Tab switching ---
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(`tab-${tab}`).classList.add("active");
+    });
+  });
+
   // --- Open settings ---
   document.getElementById("btnSettings").addEventListener("click", () => {
     browser.runtime.openOptionsPage();
     window.close();
   });
+
+  // --- SAGA export ---
+  document.getElementById("btnSagaExport").addEventListener("click", async () => {
+    try {
+      const result = await browser.runtime.sendMessage({ type: "sagaExportAll" });
+      const success = result.filter((r) => r.success).length;
+      alert(`Export completat: ${success} fișier(e) salvat(e).`);
+      await loadSagaPopupData();
+    } catch (err) {
+      alert("Eroare la export: " + err.message);
+    }
+  });
 });
+
+async function loadSagaPopupData() {
+  try {
+    const queue = await browser.runtime.sendMessage({ type: "sagaGetQueue" });
+    const pending = queue.filter((q) => q.status !== "exported");
+
+    // Update badge
+    const badge = document.getElementById("sagaBadge");
+    if (pending.length > 0) {
+      badge.textContent = pending.length;
+      badge.style.display = "inline";
+    } else {
+      badge.style.display = "none";
+    }
+
+    // Update count
+    document.getElementById("sagaQueueCount").textContent = pending.length;
+
+    // Render recent SAGA items
+    const sagaList = document.getElementById("sagaRecentList");
+    while (sagaList.lastChild) {
+      sagaList.removeChild(sagaList.lastChild);
+    }
+
+    if (pending.length === 0) {
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "empty-state";
+      emptyDiv.textContent = "Nicio factură în coadă.";
+      sagaList.appendChild(emptyDiv);
+      return;
+    }
+
+    // Show last 5 pending items
+    const recentPending = pending.slice(0, 5);
+    for (const item of recentPending) {
+      sagaList.appendChild(createSagaPopupItem(item));
+    }
+  } catch (err) {
+    console.error("[SAGA Popup] Failed to load data:", err);
+  }
+}
+
+function createSagaPopupItem(item) {
+  const div = document.createElement("div");
+  div.className = "recent-item";
+
+  const numar = item.rawData?.facturaNumar || "Necunoscut";
+  const furnizor = item.rawData?.furnizorNume || "";
+  const data = item.rawData?.facturaData || "";
+  const total = item.rawData?.totalCuTVA || 0;
+  const moneda = item.rawData?.moneda || "RON";
+  const dir = item.direction === "intrari" ? "Intrări" : item.direction === "iesiri" ? "Ieșiri" : "?";
+
+  const infoDiv = document.createElement("div");
+  infoDiv.className = "recent-info";
+
+  const numarDiv = document.createElement("div");
+  numarDiv.className = "recent-from";
+  numarDiv.textContent = `${numar} — ${furnizor}`;
+
+  const metaDiv = document.createElement("div");
+  metaDiv.className = "recent-subject";
+  metaDiv.textContent = `${data} | ${dir} | ${total.toFixed(2)} ${moneda}`;
+
+  infoDiv.appendChild(numarDiv);
+  infoDiv.appendChild(metaDiv);
+
+  div.appendChild(infoDiv);
+  return div;
+}
 
 function createRecentItem(entry) {
   const div = document.createElement("div");

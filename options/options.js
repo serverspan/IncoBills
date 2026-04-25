@@ -18,7 +18,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadSettings();
   await loadAccounts();
   await loadHistory();
+  await loadSagaCompanies();
+  await loadSagaQueue();
   bindEvents();
+  bindSagaEvents();
   setDefaultScanDates();
 });
 
@@ -320,6 +323,13 @@ async function saveSettings() {
 
   await browser.runtime.sendMessage({ type: "saveSettings", data });
 
+  // Save SAGA settings
+  const sagaSettings = {
+    exportSubdirectory: document.getElementById("sagaExportSubdir").value.trim() || "SAGA-Import",
+    autoExtractPDFs: document.getElementById("sagaAutoExtract").checked,
+  };
+  await browser.runtime.sendMessage({ type: "sagaSaveSettings", data: sagaSettings });
+
   const status = document.getElementById("saveStatus");
   status.textContent = "Settings saved!";
   setTimeout(() => { status.textContent = ""; }, 3000);
@@ -427,6 +437,300 @@ function extractSenderName(from) {
   const match = from.match(/^"?([^"<]+)"?\s*</);
   return match ? match[1].trim() : from.split("@")[0] || from;
 }
+
+// ============================================================
+//  SAGA Export — Company Registry
+// ============================================================
+
+async function loadSagaCompanies() {
+  const companies = await browser.runtime.sendMessage({ type: "sagaGetCompanies" });
+  renderSagaCompanies(companies || []);
+}
+
+function renderSagaCompanies(companies) {
+  const listEl = document.getElementById("sagaCompaniesList");
+  while (listEl.lastChild) {
+    listEl.removeChild(listEl.lastChild);
+  }
+
+  if (companies.length === 0) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "loading";
+    emptyDiv.textContent = "Nicio firmă configurată. Adaugă cel puțin o firmă pentru a activa exportul SAGA.";
+    listEl.appendChild(emptyDiv);
+    return;
+  }
+
+  for (const comp of companies) {
+    const div = document.createElement("div");
+    div.className = "saga-company-item";
+    div.dataset.id = comp.id;
+
+    const infoDiv = document.createElement("div");
+    infoDiv.className = "saga-company-info";
+
+    const nameDiv = document.createElement("div");
+    nameDiv.className = "saga-company-name";
+    nameDiv.textContent = comp.name;
+
+    const cifDiv = document.createElement("div");
+    cifDiv.className = "saga-company-cif";
+    cifDiv.textContent = `CIF: ${comp.cif} | Județ: ${comp.county}`;
+
+    infoDiv.appendChild(nameDiv);
+    infoDiv.appendChild(cifDiv);
+
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "saga-company-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn btn-sm";
+    editBtn.textContent = "Editează";
+    editBtn.addEventListener("click", () => editSagaCompany(comp));
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-sm btn-danger";
+    delBtn.textContent = "Șterge";
+    delBtn.addEventListener("click", () => deleteSagaCompany(comp.id));
+
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(delBtn);
+
+    div.appendChild(infoDiv);
+    div.appendChild(actionsDiv);
+    listEl.appendChild(div);
+  }
+}
+
+function showCompanyForm(company) {
+  const form = document.getElementById("sagaCompanyForm");
+  const title = document.getElementById("sagaFormTitle");
+
+  if (company) {
+    title.textContent = "Editează Firmă";
+    document.getElementById("sagaCompanyId").value = company.id;
+    document.getElementById("sagaCompName").value = company.name;
+    document.getElementById("sagaCompCif").value = company.cif;
+    document.getElementById("sagaCompRegCom").value = company.regCom;
+    document.getElementById("sagaCompCapital").value = company.capital;
+    document.getElementById("sagaCompCountry").value = company.country;
+    document.getElementById("sagaCompCounty").value = company.county;
+    document.getElementById("sagaCompCity").value = company.city;
+    document.getElementById("sagaCompAddress").value = company.address;
+    document.getElementById("sagaCompBank").value = company.bank;
+    document.getElementById("sagaCompIban").value = company.iban;
+    document.getElementById("sagaCompPhone").value = company.phone;
+    document.getElementById("sagaCompEmail").value = company.email;
+  } else {
+    title.textContent = "Adaugă Firmă";
+    document.getElementById("sagaCompanyId").value = "";
+    form.querySelectorAll("input[type=text], input[type=email], input[type=hidden]").forEach((input) => {
+      if (input.id !== "sagaCompCountry") input.value = "";
+    });
+    document.getElementById("sagaCompCountry").value = "RO";
+    document.getElementById("sagaCompCounty").value = "B";
+  }
+
+  form.hidden = false;
+}
+
+function hideCompanyForm() {
+  document.getElementById("sagaCompanyForm").hidden = true;
+}
+
+async function saveSagaCompany() {
+  const id = document.getElementById("sagaCompanyId").value;
+  const data = {
+    name: document.getElementById("sagaCompName").value.trim(),
+    cif: document.getElementById("sagaCompCif").value.trim(),
+    regCom: document.getElementById("sagaCompRegCom").value.trim(),
+    capital: document.getElementById("sagaCompCapital").value.trim(),
+    country: document.getElementById("sagaCompCountry").value.trim(),
+    county: document.getElementById("sagaCompCounty").value,
+    city: document.getElementById("sagaCompCity").value.trim(),
+    address: document.getElementById("sagaCompAddress").value.trim(),
+    bank: document.getElementById("sagaCompBank").value.trim(),
+    iban: document.getElementById("sagaCompIban").value.trim(),
+    phone: document.getElementById("sagaCompPhone").value.trim(),
+    email: document.getElementById("sagaCompEmail").value.trim(),
+  };
+
+  // Basic validation
+  const required = ["name", "cif", "regCom", "capital", "city", "address", "bank", "iban", "phone", "email"];
+  for (const field of required) {
+    if (!data[field]) {
+      alert(`Câmpul obligatoriu lipsă: ${field}`);
+      return;
+    }
+  }
+
+  try {
+    if (id) {
+      await browser.runtime.sendMessage({ type: "sagaUpdateCompany", id, data });
+    } else {
+      await browser.runtime.sendMessage({ type: "sagaAddCompany", data });
+    }
+    hideCompanyForm();
+    await loadSagaCompanies();
+    await loadSagaQueue();
+  } catch (err) {
+    alert("Eroare la salvare: " + err.message);
+  }
+}
+
+async function editSagaCompany(company) {
+  showCompanyForm(company);
+}
+
+async function deleteSagaCompany(id) {
+  if (!confirm("Sigur dorești să ștergi această firmă?")) return;
+  try {
+    await browser.runtime.sendMessage({ type: "sagaDeleteCompany", id });
+    await loadSagaCompanies();
+  } catch (err) {
+    alert("Eroare la ștergere: " + err.message);
+  }
+}
+
+// ============================================================
+//  SAGA Export — Queue
+// ============================================================
+
+async function loadSagaQueue() {
+  const queue = await browser.runtime.sendMessage({ type: "sagaGetQueue" });
+  renderSagaQueue(queue || []);
+}
+
+function renderSagaQueue(queue) {
+  const listEl = document.getElementById("sagaQueueList");
+  const countEl = document.getElementById("sagaQueueCount");
+
+  while (listEl.lastChild) {
+    listEl.removeChild(listEl.lastChild);
+  }
+
+  const pending = queue.filter((q) => q.status !== "exported");
+  countEl.textContent = pending.length;
+
+  if (queue.length === 0) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "loading";
+    emptyDiv.textContent = "Nicio factură în coadă.";
+    listEl.appendChild(emptyDiv);
+    return;
+  }
+
+  for (const item of queue) {
+    const div = document.createElement("div");
+    div.className = `saga-queue-item saga-status-${item.status}`;
+
+    const infoDiv = document.createElement("div");
+    infoDiv.className = "saga-queue-info";
+
+    const numarDiv = document.createElement("div");
+    numarDiv.className = "saga-queue-numar";
+    numarDiv.textContent = item.rawData?.facturaNumar || "Necunoscut";
+
+    const metaDiv = document.createElement("div");
+    metaDiv.className = "saga-queue-meta";
+    const dirText = item.direction === "intrari" ? "Intrări" : item.direction === "iesiri" ? "Ieșiri" : "Necunoscut";
+    const statusText = item.status === "extracted" ? "Nou" : item.status === "reviewed" ? "Verificat" : item.status === "exported" ? "Exportat" : "Eroare";
+    metaDiv.textContent = `${item.rawData?.furnizorNume || ""} | ${item.rawData?.facturaData || ""} | ${dirText} | ${statusText}`;
+
+    if (item.needsReview) {
+      const reviewBadge = document.createElement("span");
+      reviewBadge.className = "badge badge-danger";
+      reviewBadge.textContent = "Necesită Review";
+      metaDiv.appendChild(document.createTextNode(" "));
+      metaDiv.appendChild(reviewBadge);
+    }
+
+    infoDiv.appendChild(numarDiv);
+    infoDiv.appendChild(metaDiv);
+
+    const actionsDiv = document.createElement("div");
+    actionsDiv.className = "saga-queue-actions";
+
+    if (item.status !== "exported") {
+      const exportBtn = document.createElement("button");
+      exportBtn.className = "btn btn-sm btn-primary";
+      exportBtn.textContent = "Exportă XML";
+      exportBtn.addEventListener("click", () => exportSagaItems([item.id]));
+      actionsDiv.appendChild(exportBtn);
+    }
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-sm btn-danger";
+    delBtn.textContent = "Șterge";
+    delBtn.addEventListener("click", () => removeSagaQueueItem(item.id));
+    actionsDiv.appendChild(delBtn);
+
+    div.appendChild(infoDiv);
+    div.appendChild(actionsDiv);
+    listEl.appendChild(div);
+  }
+}
+
+async function exportSagaItems(itemIds) {
+  if (!itemIds || itemIds.length === 0) {
+    alert("Selectează cel puțin o factură pentru export.");
+    return;
+  }
+  try {
+    const results = await browser.runtime.sendMessage({ type: "sagaExportItems", itemIds });
+    const success = results.filter((r) => r.success).length;
+    const failed = results.filter((r) => !r.success).length;
+
+    if (failed > 0) {
+      alert(`Export completat: ${success} succes, ${failed} eșuat.`);
+    } else {
+      alert(`Export completat: ${success} fișier(e) salvat(e).`);
+    }
+    await loadSagaQueue();
+  } catch (err) {
+    alert("Eroare la export: " + err.message);
+  }
+}
+
+async function removeSagaQueueItem(id) {
+  if (!confirm("Sigur dorești să elimini această factură din coadă?")) return;
+  try {
+    await browser.runtime.sendMessage({ type: "sagaRemoveQueueItem", id });
+    await loadSagaQueue();
+  } catch (err) {
+    alert("Eroare: " + err.message);
+  }
+}
+
+async function clearSagaQueue() {
+  if (!confirm("Sigur dorești să golești toată coada? Facturile exportate vor rămâne.")) return;
+  try {
+    await browser.runtime.sendMessage({ type: "sagaClearQueue" });
+    await loadSagaQueue();
+  } catch (err) {
+    alert("Eroare: " + err.message);
+  }
+}
+
+// ============================================================
+//  SAGA Export — Event Binding
+// ============================================================
+
+function bindSagaEvents() {
+  document.getElementById("btnAddCompany").addEventListener("click", () => showCompanyForm(null));
+  document.getElementById("btnSaveCompany").addEventListener("click", saveSagaCompany);
+  document.getElementById("btnCancelCompany").addEventListener("click", hideCompanyForm);
+  document.getElementById("btnSagaExportAll").addEventListener("click", async () => {
+    const queue = await browser.runtime.sendMessage({ type: "sagaGetQueue" });
+    const pending = queue.filter((q) => q.status !== "exported").map((q) => q.id);
+    exportSagaItems(pending);
+  });
+  document.getElementById("btnSagaClearQueue").addEventListener("click", clearSagaQueue);
+}
+
+// ============================================================
+//  Helpers
+// ============================================================
 
 function escapeHtml(text) {
   const div = document.createElement("div");

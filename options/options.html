@@ -183,6 +183,126 @@
       </label>
     </section>
 
+    <!-- ========== SAGA Export ========== -->
+    <section class="card" id="sagaSection">
+      <h2>SAGA Export <span class="badge badge-rec">RO</span></h2>
+      <p class="card-desc">Configurează firmele tale și gestionează exportul facturilor în format SAGA XML.</p>
+
+      <!-- Company Registry -->
+      <div class="saga-subsection">
+        <h3>Firmele Mele</h3>
+        <div id="sagaCompaniesList" class="saga-companies-list">
+          <div class="loading">Nicio firmă configurată.</div>
+        </div>
+        <button class="btn btn-sm" id="btnAddCompany">Adaugă Firmă</button>
+      </div>
+
+      <!-- Add/Edit Company Form (hidden by default) -->
+      <div id="sagaCompanyForm" class="saga-form" hidden>
+        <h4 id="sagaFormTitle">Adaugă Firmă</h4>
+        <input type="hidden" id="sagaCompanyId">
+        <div class="input-row">
+          <div><label>Denumire *</label><input type="text" id="sagaCompName" placeholder="MyCompany SRL"></div>
+          <div><label>CIF *</label><input type="text" id="sagaCompCif" placeholder="RO12345678"></div>
+        </div>
+        <div class="input-row">
+          <div><label>Reg. Com. *</label><input type="text" id="sagaCompRegCom" placeholder="J40/1234/2020"></div>
+          <div><label>Capital *</label><input type="text" id="sagaCompCapital" placeholder="200"></div>
+        </div>
+        <div class="input-row">
+          <div><label>Țară *</label><input type="text" id="sagaCompCountry" value="RO"></div>
+          <div><label>Județ *</label>
+            <select id="sagaCompCounty">
+              <option value="B">București</option>
+              <option value="AB">Alba</option>
+              <option value="AR">Arad</option>
+              <option value="AG">Argeș</option>
+              <option value="BC">Bacău</option>
+              <option value="BH">Bihor</option>
+              <option value="BN">Bistrița-Năsăud</option>
+              <option value="BT">Botoșani</option>
+              <option value="BV">Brașov</option>
+              <option value="BR">Brăila</option>
+              <option value="BZ">Buzău</option>
+              <option value="CS">Caraș-Severin</option>
+              <option value="CL">Călărași</option>
+              <option value="CJ">Cluj</option>
+              <option value="CT">Constanța</option>
+              <option value="CV">Covasna</option>
+              <option value="DB">Dâmbovița</option>
+              <option value="DJ">Dolj</option>
+              <option value="GL">Galați</option>
+              <option value="GR">Giurgiu</option>
+              <option value="GJ">Gorj</option>
+              <option value="HR">Harghita</option>
+              <option value="HD">Hunedoara</option>
+              <option value="IL">Ialomița</option>
+              <option value="IS">Iași</option>
+              <option value="IF">Ilfov</option>
+              <option value="MM">Maramureș</option>
+              <option value="MH">Mehedinți</option>
+              <option value="MS">Mureș</option>
+              <option value="NT">Neamț</option>
+              <option value="OT">Olt</option>
+              <option value="PH">Prahova</option>
+              <option value="SM">Satu Mare</option>
+              <option value="SJ">Sălaj</option>
+              <option value="SB">Sibiu</option>
+              <option value="SV">Suceava</option>
+              <option value="TR">Teleorman</option>
+              <option value="TM">Timiș</option>
+              <option value="TL">Tulcea</option>
+              <option value="VS">Vaslui</option>
+              <option value="VL">Vâlcea</option>
+              <option value="VN">Vrancea</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-row">
+          <div><label>Localitate *</label><input type="text" id="sagaCompCity" placeholder="București"></div>
+          <div><label>Adresă *</label><input type="text" id="sagaCompAddress" placeholder="Str. Exemplu 1"></div>
+        </div>
+        <div class="input-row">
+          <div><label>Bancă *</label><input type="text" id="sagaCompBank" placeholder="Banca Transilvania"></div>
+          <div><label>IBAN *</label><input type="text" id="sagaCompIban" placeholder="RO49AAAA..."></div>
+        </div>
+        <div class="input-row">
+          <div><label>Telefon *</label><input type="text" id="sagaCompPhone" placeholder="0712345678"></div>
+          <div><label>Email *</label><input type="email" id="sagaCompEmail" placeholder="contact@firma.ro"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-sm btn-primary" id="btnSaveCompany">Salvează</button>
+          <button class="btn btn-sm" id="btnCancelCompany">Anulează</button>
+        </div>
+      </div>
+
+      <!-- SAGA Settings -->
+      <div class="saga-subsection">
+        <h3>Setări Export</h3>
+        <div class="field-group">
+          <label>Subdirector export</label>
+          <input type="text" id="sagaExportSubdir" value="SAGA-Import">
+          <p class="hint">Fișierele XML vor fi salvate în Downloads/&lt;subdirector&gt;/</p>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="sagaAutoExtract" checked>
+          <span>Extrage automat facturile din PDF-uri</span>
+        </label>
+      </div>
+
+      <!-- Invoice Queue -->
+      <div class="saga-subsection">
+        <h3>Coada Facturi <span id="sagaQueueCount" class="badge">0</span></h3>
+        <div class="saga-queue-toolbar">
+          <button class="btn btn-sm" id="btnSagaExportAll">Exportă Tot</button>
+          <button class="btn btn-sm btn-danger" id="btnSagaClearQueue">Golește Coada</button>
+        </div>
+        <div id="sagaQueueList" class="saga-queue-list">
+          <div class="loading">Nicio factură în coadă.</div>
+        </div>
+      </div>
+    </section>
+
     <!-- ========== Accounts ========== -->
     <section class="card">
       <h2>Accounts to Monitor</h2>

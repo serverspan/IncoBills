@@ -73,6 +73,56 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         success: true,
       }));
 
+    // SAGA Export handlers
+    case "sagaGetCompanies":
+      return CompanyRegistry.getAll();
+
+    case "sagaAddCompany":
+      return CompanyRegistry.add(message.data)
+        .then((company) => ({ success: true, company }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaUpdateCompany":
+      return CompanyRegistry.update(message.id, message.data)
+        .then((company) => ({ success: true, company }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaDeleteCompany":
+      return CompanyRegistry.delete(message.id)
+        .then(() => ({ success: true }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaGetQueue":
+      return SAGAExport.getQueue();
+
+    case "sagaRemoveQueueItem":
+      return SAGAExport.removeFromQueue(message.id)
+        .then(() => ({ success: true }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaClearQueue":
+      return SAGAExport.clearQueue()
+        .then(() => ({ success: true }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaExportItems":
+      return SAGAExport.exportItems(message.itemIds)
+        .then((results) => ({ success: true, results }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaExportAll":
+      return SAGAExport.exportAll()
+        .then((results) => ({ success: true, results }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaSaveSettings":
+      return SAGAExport.saveSettings(message.data)
+        .then(() => ({ success: true }))
+        .catch((err) => ({ success: false, error: err.message }));
+
+    case "sagaGetSettings":
+      return SAGAExport.getSettings();
+
     default:
       return Promise.resolve({ error: "Unknown message type" });
   }
