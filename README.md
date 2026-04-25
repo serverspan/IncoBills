@@ -6,6 +6,8 @@ A Thunderbird MailExtension that monitors all incoming emails, classifies them w
 
 Built by [ServerSpan](https://www.serverspan.com/en/) — the hosting company where real sysadmins answer your tickets.
 
+**[Install from Thunderbird Add-ons](https://addons.thunderbird.net/en-US/thunderbird/addon/incobills/)**
+
 ---
 
 ## Features
@@ -34,7 +36,14 @@ Built by [ServerSpan](https://www.serverspan.com/en/) — the hosting company wh
 
 > Temporary add-ons are removed when Thunderbird closes.
 
-### Permanent Install (.xpi)
+### Permanent Install (Recommended)
+
+**From Thunderbird Add-ons (auto-updates):**
+
+1. Visit [IncoBills on Thunderbird Add-ons](https://addons.thunderbird.net/en-US/thunderbird/addon/incobills/)
+2. Click **Add to Thunderbird**
+
+**From GitHub Releases (manual):**
 
 1. Download the latest `incobills-x.x.x.xpi` from [Releases](../../releases)
 2. In Thunderbird: **Add-ons → Gear → Install Add-on From File**
