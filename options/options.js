@@ -77,7 +77,9 @@ async function loadAccounts() {
   const listEl = document.getElementById("accountsList");
   const scanSelect = document.getElementById("scanAccount");
   const unifiedSelect = document.getElementById("unifiedAccount");
-  listEl.innerHTML = "";
+  while (listEl.lastChild) {
+    listEl.removeChild(listEl.lastChild);
+  }
 
   // Clear and repopulate unified dropdown (keep first placeholder option)
   unifiedSelect.length = 1;
@@ -86,12 +88,23 @@ async function loadAccounts() {
     // Checkbox list
     const div = document.createElement("div");
     div.className = "account-item";
-    div.innerHTML = `
-      <input type="checkbox" class="account-check" value="${account.id}"
-             ${monitored.length === 0 || monitored.includes(account.id) ? "checked" : ""}>
-      <span>${escapeHtml(account.name || account.id)}</span>
-      <span class="account-type">${account.type || ""}</span>
-    `;
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "account-check";
+    checkbox.value = account.id;
+    checkbox.checked = monitored.length === 0 || monitored.includes(account.id);
+
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = account.name || account.id;
+
+    const typeSpan = document.createElement("span");
+    typeSpan.className = "account-type";
+    typeSpan.textContent = account.type || "";
+
+    div.appendChild(checkbox);
+    div.appendChild(nameSpan);
+    div.appendChild(typeSpan);
     listEl.appendChild(div);
 
     // Scan dropdown
@@ -109,7 +122,10 @@ async function loadAccounts() {
   }
 
   if (accounts.length === 0) {
-    listEl.innerHTML = '<div class="loading">No mail accounts found.</div>';
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "loading";
+    emptyDiv.textContent = "No mail accounts found.";
+    listEl.appendChild(emptyDiv);
   }
 }
 
@@ -140,12 +156,23 @@ function renderHistoryPage() {
   const page = allHistory.slice(0, historyOffset + HISTORY_PAGE_SIZE);
 
   if (page.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No history yet.</td></tr>';
+    while (tbody.lastChild) {
+      tbody.removeChild(tbody.lastChild);
+    }
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.className = "empty-cell";
+    td.textContent = "No history yet.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
     document.getElementById("btnLoadMore").hidden = true;
     return;
   }
 
-  tbody.innerHTML = "";
+  while (tbody.lastChild) {
+    tbody.removeChild(tbody.lastChild);
+  }
   for (const entry of page) {
     const tr = document.createElement("tr");
     const date = new Date(entry.timestamp);
@@ -153,14 +180,34 @@ function renderHistoryPage() {
     const conf = entry.classification ? Math.round(entry.classification.confidence * 100) + "%" : "-";
     const actionClass = `action-${entry.action || "skipped"}`;
 
-    tr.innerHTML = `
-      <td title="${entry.timestamp}">${dateStr}</td>
-      <td title="${escapeHtml(entry.from || "")}">${escapeHtml(extractSenderName(entry.from || ""))}</td>
-      <td title="${escapeHtml(entry.subject || "")}">${escapeHtml(entry.subject || "(no subject)")}</td>
-      <td>${conf}</td>
-      <td>${entry.backend || "-"}</td>
-      <td class="${actionClass}">${entry.action || "-"}</td>
-    `;
+    const tdDate = document.createElement("td");
+    tdDate.title = entry.timestamp;
+    tdDate.textContent = dateStr;
+
+    const tdFrom = document.createElement("td");
+    tdFrom.title = entry.from || "";
+    tdFrom.textContent = extractSenderName(entry.from || "");
+
+    const tdSubject = document.createElement("td");
+    tdSubject.title = entry.subject || "";
+    tdSubject.textContent = entry.subject || "(no subject)";
+
+    const tdConf = document.createElement("td");
+    tdConf.textContent = conf;
+
+    const tdBackend = document.createElement("td");
+    tdBackend.textContent = entry.backend || "-";
+
+    const tdAction = document.createElement("td");
+    tdAction.className = actionClass;
+    tdAction.textContent = entry.action || "-";
+
+    tr.appendChild(tdDate);
+    tr.appendChild(tdFrom);
+    tr.appendChild(tdSubject);
+    tr.appendChild(tdConf);
+    tr.appendChild(tdBackend);
+    tr.appendChild(tdAction);
     tbody.appendChild(tr);
   }
 
@@ -219,8 +266,8 @@ function bindEvents() {
   // History
   document.getElementById("sortDate").addEventListener("click", () => {
     historySortDesc = !historySortDesc;
-    document.getElementById("sortDate").innerHTML =
-      historySortDesc ? "Date &#9660;" : "Date &#9650;";
+    document.getElementById("sortDate").textContent =
+      historySortDesc ? "Date \u25BC" : "Date \u25B2";
     sortAndRender();
   });
   document.getElementById("btnLoadMore").addEventListener("click", () => {

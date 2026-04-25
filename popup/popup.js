@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const movedRecent = recent.filter((e) => e.action === "moved" || e.action === "flagged");
   if (movedRecent.length > 0) {
-    recentList.innerHTML = "";
+    while (recentList.lastChild) {
+      recentList.removeChild(recentList.lastChild);
+    }
     for (const entry of movedRecent) {
       recentList.appendChild(createRecentItem(entry));
     }
@@ -64,16 +66,36 @@ function createRecentItem(entry) {
     ? Math.round(entry.classification.confidence * 100) + "%"
     : "";
 
-  div.innerHTML = `
-    <div class="recent-info">
-      <div class="recent-from">${escapeHtml(senderName)}</div>
-      <div class="recent-subject">${escapeHtml(entry.subject || "(no subject)")}</div>
-    </div>
-    <div class="recent-meta">
-      <span class="recent-time">${timeAgo}</span>
-      <span class="recent-confidence">${confidence}</span>
-    </div>
-  `;
+  const infoDiv = document.createElement("div");
+  infoDiv.className = "recent-info";
+
+  const fromDiv = document.createElement("div");
+  fromDiv.className = "recent-from";
+  fromDiv.textContent = senderName;
+
+  const subjectDiv = document.createElement("div");
+  subjectDiv.className = "recent-subject";
+  subjectDiv.textContent = entry.subject || "(no subject)";
+
+  infoDiv.appendChild(fromDiv);
+  infoDiv.appendChild(subjectDiv);
+
+  const metaDiv = document.createElement("div");
+  metaDiv.className = "recent-meta";
+
+  const timeSpan = document.createElement("span");
+  timeSpan.className = "recent-time";
+  timeSpan.textContent = timeAgo;
+
+  const confSpan = document.createElement("span");
+  confSpan.className = "recent-confidence";
+  confSpan.textContent = confidence;
+
+  metaDiv.appendChild(timeSpan);
+  metaDiv.appendChild(confSpan);
+
+  div.appendChild(infoDiv);
+  div.appendChild(metaDiv);
   return div;
 }
 

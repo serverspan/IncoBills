@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "IncoBills",
   "description": "AI-powered invoice detection — automatically finds and organizes invoice emails across all your Thunderbird accounts.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "ServerSpan",
   "homepage_url": "https://github.com/serverspan/incobills",
   "browser_specific_settings": {
